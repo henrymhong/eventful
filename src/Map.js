@@ -11,7 +11,11 @@ import {
   Button,
   TextField,
   Select,
-  MenuItem
+  MenuItem,
+  Drawer,
+  ListItem,
+  List,
+  ListItemText
 } from "@material-ui/core";
 import { ToggleButton } from "@material-ui/lab";
 import AddIcon from "@material-ui/icons/Add";
@@ -24,6 +28,7 @@ import PetsIcon from "@material-ui/icons/Pets";
 import SportsEsportsIcon from "@material-ui/icons/SportsEsports";
 import BusinessIcon from "@material-ui/icons/Business";
 import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar";
+import ListIcon from "@material-ui/icons/List";
 import MarkerWithInfoBox from "./MarkerWithInfoBox";
 
 const libraries = ["places"];
@@ -38,6 +43,7 @@ class Map extends Component {
       createEventDesc: null,
       createEventCategory: "social",
       filterToggle: false,
+      showDrawer: false,
       currentPosition: { lat: this.props.lat, lng: this.props.long },
       defaultPosition: { lat: this.props.lat, lng: this.props.long },
       markers: [
@@ -68,6 +74,18 @@ class Map extends Component {
           zoom={13}
           center={{ lat: this.props.lat, lng: this.props.long }}
         >
+          <Drawer
+            open={this.state.showDrawer}
+            onClose={() => this.setState({ showDrawer: false })}
+          >
+            <List>
+              {["Friends", "About", "Contact Us"].map((text, index) => (
+                <ListItem button key={text}>
+                  <ListItemText primary={text} />
+                </ListItem>
+              ))}
+            </List>
+          </Drawer>
           <StandaloneSearchBox>
             <input
               type="text"
@@ -142,6 +160,14 @@ class Map extends Component {
             }}
           >
             <AddIcon />
+          </IconButton>
+          <IconButton
+            style={{ position: "absolute", bottom: 70, left: 20 }}
+            onClick={() => {
+              this.setState({ showDrawer: true });
+            }}
+          >
+            <ListIcon />
           </IconButton>
           <Modal
             open={this.state.showCreateEvent}
