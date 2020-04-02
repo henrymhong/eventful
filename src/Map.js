@@ -5,8 +5,26 @@ import {
   Marker,
   StandaloneSearchBox
 } from "@react-google-maps/api";
-import { IconButton, Modal, Button, TextField } from "@material-ui/core";
+import {
+  IconButton,
+  Modal,
+  Button,
+  TextField,
+  Select,
+  MenuItem
+} from "@material-ui/core";
+import { ToggleButton } from "@material-ui/lab";
 import AddIcon from "@material-ui/icons/Add";
+import FastfoodIcon from "@material-ui/icons/Fastfood";
+import SportsFootballIcon from "@material-ui/icons/SportsFootball";
+import CakeIcon from "@material-ui/icons/Cake";
+import MusicNoteIcon from "@material-ui/icons/MusicNote";
+import PeopleIcon from "@material-ui/icons/People";
+import PetsIcon from "@material-ui/icons/Pets";
+import SportsEsportsIcon from "@material-ui/icons/SportsEsports";
+import BusinessIcon from "@material-ui/icons/Business";
+import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar";
+import MarkerWithInfoBox from "./MarkerWithInfoBox";
 
 const libraries = ["places"];
 
@@ -16,12 +34,22 @@ class Map extends Component {
     this.state = {
       showCreateEvent: false,
       createEventName: null,
-      createEventDate: null,
+      createEventDate: "2020-04-01T10:30",
+      createEventDesc: null,
+      createEventCategory: "social",
+      filterToggle: false,
       currentPosition: { lat: this.props.lat, lng: this.props.long },
       defaultPosition: { lat: this.props.lat, lng: this.props.long },
       markers: [
-        { label: "test1", position: { lat: 36.5, lng: -119.5 } },
-        { label: "test2", position: { lat: 36, lng: -119 } }
+        {
+          name: "Work Lunch",
+          position: { lat: 36.83, lng: -119.8 },
+          date: "2020-04-01T12:30 PM",
+          desc: "Meeting at Danny's for a work lunch.",
+          category: "business",
+          owner: "Tom Hanks"
+        }
+        // { label: "test2", position: { lat: 36, lng: -119 } }
       ]
     };
   }
@@ -30,7 +58,7 @@ class Map extends Component {
     return (
       <LoadScript
         libraries={libraries}
-        googleMapsApiKey="AIzaSyD7y_nN43cV_7PE6fwtfLcDhC2NW1INcuY"
+        googleMapsApiKey="AIzaSyC1tGOt9uH0XObaoIGi8djUckDpjMV2SEY"
       >
         <GoogleMap
           mapContainerStyle={{
@@ -61,15 +89,43 @@ class Map extends Component {
               }}
             />
           </StandaloneSearchBox>
+          <ToggleButton
+            value="check"
+            selected={this.state.filterToggle}
+            onChange={() => {
+              this.setState({ filterToggle: !this.state.filterToggle });
+            }}
+            style={{
+              backgroundColor: "#FFF",
+              width: `30px`,
+              height: `32px`,
+              padding: `0 12px`,
+              borderRadius: `3px`,
+              position: "absolute",
+              left: "50%",
+              marginLeft: "275px"
+            }}
+          >
+            <PermContactCalendarIcon />
+          </ToggleButton>
 
           {this.state.markers.map((marker, i) => {
-            console.log(marker.position);
             return (
-              <Marker key={i} label={marker.label} position={marker.position} />
+              <MarkerWithInfoBox
+                key={i}
+                markerKey={i}
+                name={marker.name}
+                position={marker.position}
+                date={marker.date}
+                desc={marker.desc}
+                owner={marker.owner}
+                category={marker.category}
+              />
             );
           })}
 
           <Marker
+            icon={{ url: require("./marker.svg") }}
             draggable={true}
             position={this.state.currentPosition}
             onDragEnd={e => {
@@ -113,13 +169,15 @@ class Map extends Component {
                   flexDirection: "column",
                   justifyContent: "center",
                   alignItems: "center",
-                  padding: 20
+                  padding: 20,
+                  borderRadius: 10
                 }}
               >
                 <TextField
                   label="Name of event"
                   variant="outlined"
                   style={{ paddingBottom: 10 }}
+                  fullWidth
                   onChange={e => {
                     this.setState({ createEventName: e.target.value });
                   }}
@@ -135,19 +193,66 @@ class Map extends Component {
                     this.setState({ createEventDate: e.target.value });
                   }}
                 />
+                <TextField
+                  label="Description"
+                  variant="outlined"
+                  style={{ marginTop: 10 }}
+                  multiline
+                  fullWidth
+                  onChange={e => {
+                    this.setState({ createEventDesc: e.target.value });
+                  }}
+                />
+                <Select
+                  onChange={e => {
+                    this.setState({ createEventCategory: e.target.value });
+                  }}
+                  value={this.state.createEventCategory}
+                >
+                  <MenuItem value={"sports"}>
+                    Sports <SportsFootballIcon />
+                  </MenuItem>
+                  <MenuItem value={"food"}>
+                    Food <FastfoodIcon />
+                  </MenuItem>
+                  <MenuItem value={"birthday"}>
+                    Birthday <CakeIcon />
+                  </MenuItem>
+                  <MenuItem value={"music"}>
+                    Music <MusicNoteIcon />
+                  </MenuItem>
+                  <MenuItem value={"social"}>
+                    Social <PeopleIcon />
+                  </MenuItem>{" "}
+                  <MenuItem value={"pets"}>
+                    Pets <PetsIcon />
+                  </MenuItem>{" "}
+                  <MenuItem value={"gaming"}>
+                    Gaming <SportsEsportsIcon />
+                  </MenuItem>
+                  <MenuItem value={"business"}>
+                    Business <BusinessIcon />
+                  </MenuItem>
+                </Select>
                 <Button
                   style={{ marginTop: 5, paddingTop: 10, textAlign: "center" }}
                   onClick={() => {
-                    console.log(this.state.createEventName);
-                    console.log(this.state.createEventDate);
                     this.setState(prevState => ({
                       markers: [
                         ...prevState.markers,
-                        { position: this.state.currentPosition }
+                        {
+                          position: this.state.currentPosition,
+                          name: this.state.createEventName,
+                          date: this.state.createEventDate,
+                          desc: this.state.createEventDesc,
+                          owner: "Henry Hong",
+                          category: this.state.createEventCategory
+                        }
                       ]
                     }));
                     this.setState({
-                      currentPosition: this.state.defaultPosition
+                      currentPosition: this.state.defaultPosition,
+                      showCreateEvent: false
                     });
                   }}
                 >
