@@ -24,6 +24,7 @@ const categories = {
 function MarkerWithInfoBox(props) {
   const [isOpen, setOpen] = useState(false);
   const [usersOpen, setUsersOpen] = useState(false);
+  
   return (
     <Marker
       key={props.markerKey}

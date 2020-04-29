@@ -30,6 +30,7 @@ import BusinessIcon from "@material-ui/icons/Business";
 import PermContactCalendarIcon from "@material-ui/icons/PermContactCalendar";
 import ListIcon from "@material-ui/icons/List";
 import MarkerWithInfoBox from "./MarkerWithInfoBox";
+import CheckIcon from '@material-ui/icons/Check';
 
 const libraries = ["places"];
 
@@ -42,6 +43,7 @@ class Map extends Component {
       createEventDate: "2020-04-01T10:30",
       createEventDesc: null,
       createEventCategory: "social",
+      createEventFriends: false,
       filterToggle: false,
       showDrawer: false,
       currentPosition: { lat: this.props.lat, lng: this.props.long },
@@ -53,11 +55,86 @@ class Map extends Component {
           date: "2020-04-01T12:30 PM",
           desc: "Meeting at Danny's for a work lunch.",
           category: "business",
-          owner: "Tom Hanks"
+          owner: "Tom Hanks",
+          friend: false
+        },
+        {
+          name: "Carl's Birthday",
+          position: { lat: 36.86, lng: -119.7 },
+          date: "2020-04-30T8:00 PM",
+          desc: "Meeting at the bar for Carl's birthday.",
+          category: "birthday",
+          owner: "Carl Smith",
+          friend: true
+        },
+        {
+          name: "Pool Party",
+          position: { lat: 36.88918248102311, lng: -119.7685511661621 },
+          date: "2020-05-15T12:00 PM",
+          desc: "Pool party at Rachels.",
+          category: "business",
+          owner: "Rachel Carr",
+          friend: true
+        },
+        {
+          name: "Farmer's Market",
+          position: { lat: 36.8446861286037, lng: -119.82313948403319 },
+          date: "2020-05-10T2:30 PM",
+          desc: "Farmers marker event.",
+          category: "social",
+          owner: "Farmer Jon",
+          friend: false
         }
-        // { label: "test2", position: { lat: 36, lng: -119 } }
+      ],
+      searchedMarkers: [
+        {
+          name: "Work Lunch",
+          position: { lat: 36.83, lng: -119.8 },
+          date: "2020-04-01T12:30 PM",
+          desc: "Meeting at Danny's for a work lunch.",
+          category: "business",
+          owner: "Tom Hanks",
+          friend: false
+        },
+        {
+          name: "Carl's Birthday",
+          position: { lat: 36.86, lng: -119.7 },
+          date: "2020-04-30T8:00 PM",
+          desc: "Meeting at the bar for Carl's birthday.",
+          category: "birthday",
+          owner: "Carl Smith",
+          friend: true
+        },
+        {
+          name: "Pool Party",
+          position: { lat: 36.88918248102311, lng: -119.7685511661621 },
+          date: "2020-05-15T12:00 PM",
+          desc: "Pool party at Rachels.",
+          category: "business",
+          owner: "Rachel Carr",
+          friend: true
+        },
+        {
+          name: "Farmer's Market",
+          position: { lat: 36.8446861286037, lng: -119.82313948403319 },
+          date: "2020-05-10T2:30 PM",
+          desc: "Farmers marker event.",
+          category: "social",
+          owner: "Farmer Jon",
+          friend: false
+        }
       ]
     };
+  }
+
+  filterMarkers = e => {
+    var updatedList = this.state.markers;
+    updatedList = updatedList.filter(marker => {
+      return marker.name.toLowerCase().search(
+        e.target.value.toLowerCase()) !== -1;
+    });
+
+    this.setState({ searchedMarkers: updatedList });
   }
 
   render() {
@@ -86,27 +163,28 @@ class Map extends Component {
               ))}
             </List>
           </Drawer>
-          <StandaloneSearchBox>
-            <input
-              type="text"
-              placeholder="Search for events..."
-              style={{
-                boxSizing: `border-box`,
-                border: `1px solid transparent`,
-                width: `500px`,
-                height: `32px`,
-                padding: `0 12px`,
-                borderRadius: `3px`,
-                boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
-                fontSize: `14px`,
-                outline: `none`,
-                textOverflow: `ellipses`,
-                position: "absolute",
-                left: "50%",
-                marginLeft: "-250px"
-              }}
-            />
-          </StandaloneSearchBox>
+          {/* <StandaloneSearchBox onPlacesChanged={this.onPlacesChanged} onLoad={this.onLoad}> */}
+          <input
+            type="text"
+            placeholder="Search for events..."
+            style={{
+              boxSizing: `border-box`,
+              border: `1px solid transparent`,
+              width: `500px`,
+              height: `32px`,
+              padding: `0 12px`,
+              borderRadius: `3px`,
+              boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
+              fontSize: `14px`,
+              outline: `none`,
+              textOverflow: `ellipses`,
+              position: "absolute",
+              left: "50%",
+              marginLeft: "-250px"
+            }}
+            onChange={this.filterMarkers}
+          />
+          {/* </StandaloneSearchBox> */}
           <ToggleButton
             value="check"
             selected={this.state.filterToggle}
@@ -126,20 +204,51 @@ class Map extends Component {
           >
             <PermContactCalendarIcon />
           </ToggleButton>
+          <div style={{
+            backgroundColor: "#FFF",
+            // width: `130px`,
+            height: `26px`,
+            padding: `0 12px`,
+            borderRadius: `3px`,
+            position: "absolute",
+            left: "52%",
+            marginLeft: "275px",
+            justifyContent: "center",
+            alignContent: 'center',
+            lineHeight: `26px`,
+            fontSize: 14
+          }}>{this.state.filterToggle ? "Viewing friends events" : "Viewing all events"}</div>
 
-          {this.state.markers.map((marker, i) => {
-            return (
-              <MarkerWithInfoBox
-                key={i}
-                markerKey={i}
-                name={marker.name}
-                position={marker.position}
-                date={marker.date}
-                desc={marker.desc}
-                owner={marker.owner}
-                category={marker.category}
-              />
-            );
+          {this.state.searchedMarkers.map((marker, i) => {
+            if (this.state.filterToggle === true) {
+              if (marker.friend === true) {
+                return (
+                  <MarkerWithInfoBox
+                    key={i}
+                    markerKey={i}
+                    name={marker.name}
+                    position={marker.position}
+                    date={marker.date}
+                    desc={marker.desc}
+                    owner={marker.owner}
+                    category={marker.category}
+                  />
+                );
+              }
+            } else {
+              return (
+                <MarkerWithInfoBox
+                  key={i}
+                  markerKey={i}
+                  name={marker.name}
+                  position={marker.position}
+                  date={marker.date}
+                  desc={marker.desc}
+                  owner={marker.owner}
+                  category={marker.category}
+                />
+              );
+            }
           })}
 
           <Marker
@@ -150,6 +259,7 @@ class Map extends Component {
               this.setState({
                 currentPosition: { lat: e.latLng.lat(), lng: e.latLng.lng() }
               });
+              console.log(this.state.currentPosition)
             }}
           />
 
@@ -229,6 +339,9 @@ class Map extends Component {
                     this.setState({ createEventDesc: e.target.value });
                   }}
                 />
+                <div>Friends only <ToggleButton value="check" selected={this.state.createEventFriends} style={{ padding: 10, marginTop: 5 }} onChange={() => {
+                  this.setState({ createEventFriends: !this.state.createEventFriends });
+                }}><CheckIcon></CheckIcon></ToggleButton></div>
                 <Select
                   onChange={e => {
                     this.setState({ createEventCategory: e.target.value });
@@ -272,7 +385,8 @@ class Map extends Component {
                           date: this.state.createEventDate,
                           desc: this.state.createEventDesc,
                           owner: "Henry Hong",
-                          category: this.state.createEventCategory
+                          category: this.state.createEventCategory,
+                          friend: this.state.createEventFriends
                         }
                       ]
                     }));
