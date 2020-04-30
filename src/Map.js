@@ -3,7 +3,6 @@ import {
   GoogleMap,
   LoadScript,
   Marker,
-  StandaloneSearchBox
 } from "@react-google-maps/api";
 import {
   IconButton,
@@ -44,6 +43,7 @@ class Map extends Component {
       createEventDesc: null,
       createEventCategory: "social",
       createEventFriends: false,
+      searchQuery: "",
       filterToggle: false,
       showDrawer: false,
       currentPosition: { lat: this.props.lat, lng: this.props.long },
@@ -127,11 +127,21 @@ class Map extends Component {
     };
   }
 
+  // filterMarkers = e => {
+  //   var updatedList = this.state.markers;
+  //   updatedList = updatedList.filter(marker => {
+  //     return marker.name.toLowerCase().search(
+  //       e.target.value.toLowerCase()) !== -1;
+  //   });
+
+  //   this.setState({ searchedMarkers: updatedList });
+  // }
+
   filterMarkers = e => {
     var updatedList = this.state.markers;
     updatedList = updatedList.filter(marker => {
       return marker.name.toLowerCase().search(
-        e.target.value.toLowerCase()) !== -1;
+        e.toLowerCase()) !== -1;
     });
 
     this.setState({ searchedMarkers: updatedList });
@@ -166,6 +176,8 @@ class Map extends Component {
           {/* <StandaloneSearchBox onPlacesChanged={this.onPlacesChanged} onLoad={this.onLoad}> */}
           <input
             type="text"
+            id="searchBar"
+            value={this.state.searchQuery}
             placeholder="Search for events..."
             style={{
               boxSizing: `border-box`,
@@ -182,8 +194,26 @@ class Map extends Component {
               left: "50%",
               marginLeft: "-250px"
             }}
-            onChange={this.filterMarkers}
+            onChange={e => { this.filterMarkers(e.target.value); this.setState({ searchQuery: e.target.value }) }}
           />
+          <ul style={{
+            boxSizing: `border-box`,
+            border: `1px solid transparent`,
+            width: `500px`,
+            height: `auto`,
+            padding: `0 12px`,
+            borderRadius: `3px`,
+            boxShadow: `0 2px 6px rgba(0, 0, 0, 0.3)`,
+            fontSize: `14px`,
+            outline: `none`,
+            position: "absolute",
+            left: "50%",
+            marginLeft: "-250px",
+            marginTop: "34px",
+            background: "#FFF"
+          }}>
+            {this.state.searchQuery !== "" ? this.state.searchedMarkers.map((marker, i) => <div style={{ paddingTop: 5, background: "#FFF" }} key={i}>{marker.name}</div>) : null}
+          </ul>
           {/* </StandaloneSearchBox> */}
           <ToggleButton
             value="check"
@@ -378,6 +408,18 @@ class Map extends Component {
                   onClick={() => {
                     this.setState(prevState => ({
                       markers: [
+                        ...prevState.markers,
+                        {
+                          position: this.state.currentPosition,
+                          name: this.state.createEventName,
+                          date: this.state.createEventDate,
+                          desc: this.state.createEventDesc,
+                          owner: "Henry Hong",
+                          category: this.state.createEventCategory,
+                          friend: this.state.createEventFriends
+                        }
+                      ],
+                      searchedMarkers: [
                         ...prevState.markers,
                         {
                           position: this.state.currentPosition,
